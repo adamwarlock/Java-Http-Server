@@ -76,7 +76,11 @@ public class ProcessFormRequests {
 				file_copy(file, tempFile);
 				
 				dynamic_html_writer(PATH+"\\TempFile.html",data);
-				String marks=checkStudentGrades(data);
+				
+				//CHECKING IF SEARCHED STUDENT IS ALREADY GRADED OR NOT
+				
+				String marks=checkStudentGrades(data);	
+				
 				if( marks !=null) {
 					dynamic_html_writer_value(PATH+"\\TempFile.html", marks);
 				}
@@ -169,10 +173,11 @@ public class ProcessFormRequests {
 
 		String content = new String(Files.readAllBytes(path), charset);
 		content = content.replaceAll("#StudentName#", data.getFirstName()+" "+data.getLastName());
-		content = content.replaceAll("#StudentResource#", data.getFirstName()+"_"+data.getLastName()+".txt");
+		content = content.replaceAll("#StudentResource#",data.getFirstName()+"_"+data.getLastName()+".txt");
 		Files.write(path, content.getBytes(charset));
 	}
 	
+	// WRITER VALUE FOR EXISTING GRADES
 	public void dynamic_html_writer_value(String filePath,String marks) throws Exception {
 		Path path = Paths.get(filePath);
 		Charset charset = StandardCharsets.UTF_8;
@@ -183,7 +188,7 @@ public class ProcessFormRequests {
 		Files.write(path, content.getBytes(charset));
 	}
 	
-	
+	// CHECK IF STUDENT IS ALREADY GRADED OR NOT
 	public String checkStudentGrades(StudentData data) {
 		String studentInfoFile = "src/DatabaseFiles/studentgrades.txt";
 		

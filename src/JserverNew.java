@@ -143,8 +143,10 @@ public class JserverNew {
 		File files[] = folder.listFiles();
 		for (File file : files) {
 
-			//System.out.println(file.getName());
-			String filename = file.getName().substring(0, file.getName().lastIndexOf('.'));
+		//	System.out.println(file.getName());
+			String filename=null;
+			if( file.getName().contains(".") )
+				filename = file.getName().substring(0, file.getName().lastIndexOf('.'));
 
 			
 
