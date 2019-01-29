@@ -34,7 +34,19 @@ public class ProcessFormRequests {
 			{
 				dataPair=str[i].split("=");
 				
-				formDataMap.put(dataPair[0], dataPair[1]);
+				if(dataPair.length>1)
+				{
+					formDataMap.put(dataPair[0], dataPair[1]);
+				}
+				else if (dataPair.length==1)
+				{
+					formDataMap.put(dataPair[0], null);
+				}
+				else
+				{
+					return null;
+				}
+				
 			}
 			
 			file=processFormData(resource, formDataMap);
@@ -48,7 +60,7 @@ public class ProcessFormRequests {
 		resource= resource.replace("/", "");
 		File file=null;
 		File tempFile=null;
-		if("studentinfo".equalsIgnoreCase(resource))
+		if("studentinfopage".equalsIgnoreCase(resource))
 		{
 			try {
 			StudentData data= new StudentData();			
@@ -64,8 +76,10 @@ public class ProcessFormRequests {
 				file_copy(file, tempFile);
 				
 				dynamic_html_writer(PATH+"\\TempFile.html",data);
-				
-				
+				String marks=checkStudentGrades(data);
+				if( marks !=null) {
+					dynamic_html_writer_value(PATH+"\\TempFile.html", marks);
+				}
 			}
 			else {
 				
@@ -84,7 +98,23 @@ public class ProcessFormRequests {
 			return tempFile;
 			
 		}
-		else if("studentinfo".equalsIgnoreCase(resource))
+		else if("studentgradesubmit".equalsIgnoreCase(resource))
+		{	String marks=null;
+			String name=formDataMap.get("StudentName");
+			
+			StudentData data= new StudentData();						
+			data.setFirstName(name);
+			data.setLastName("");
+			data.setGrades(formDataMap.get("Grades"));
+			
+			
+			saveStudentGrades(data);
+			
+			
+			file= new File(PATH+"\\studentgradesaved.html");
+			return file;
+		}
+		else
 		{
 			
 		}
@@ -119,6 +149,7 @@ public class ProcessFormRequests {
 		    out.close();
 
 		} catch (IOException e) {
+			e.printStackTrace();
 		}
 		return entryFound;
 	}
@@ -140,5 +171,81 @@ public class ProcessFormRequests {
 		content = content.replaceAll("#StudentName#", data.getFirstName()+" "+data.getLastName());
 		content = content.replaceAll("#StudentResource#", data.getFirstName()+"_"+data.getLastName()+".txt");
 		Files.write(path, content.getBytes(charset));
+	}
+	
+	public void dynamic_html_writer_value(String filePath,String marks) throws Exception {
+		Path path = Paths.get(filePath);
+		Charset charset = StandardCharsets.UTF_8;
+
+		String content = new String(Files.readAllBytes(path), charset);
+		content = content.replaceAll("#StudentGrade#","value="+ marks);
+		
+		Files.write(path, content.getBytes(charset));
+	}
+	
+	
+	public String checkStudentGrades(StudentData data) {
+		String studentInfoFile = "src/DatabaseFiles/studentgrades.txt";
+		
+		String studentName = data.getFirstName()+" "+data.getLastName();
+		String marks=null;
+		try {
+		    BufferedReader in = new BufferedReader(new FileReader(studentInfoFile));
+		   
+		    String str;
+		    String student[];	    
+		    while ((str = in.readLine()) != null)		    	
+		    {		    	
+		    	if( ( str.toLowerCase() ).contains( studentName.toLowerCase() ) )
+		    	{
+		    		marks = str.split(",")[1];
+		    		return marks;
+		    	}
+		    }
+		    in.close();
+		   
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return marks;
+	}
+	
+	
+	public boolean saveStudentGrades(StudentData data)
+	{
+		String studentInfoFile = "src/DatabaseFiles/studentgrades.txt";
+		boolean entryFound=false;
+		try {
+			BufferedReader in = new BufferedReader(new FileReader(studentInfoFile));
+		    BufferedWriter out = new BufferedWriter(new FileWriter(studentInfoFile,true));	
+		    
+		    String str;
+		    String studentName = data.getFirstName().replace("+", " ");
+		    String student[];	    
+		    while ((str = in.readLine()) != null)		    	
+		    {		    	
+		    	if( ( str.toLowerCase() ).contains( studentName.toLowerCase() ) )
+		    	{
+		    		in.close();
+		    		Path path = Paths.get(studentInfoFile);
+		    		Charset charset = StandardCharsets.UTF_8;
+
+		    		String content = new String(Files.readAllBytes(path), charset);
+		    		content = content.replaceAll(str, data.getFirstName().replace("+", " ")+","+data.getGrades());
+		    		
+		    		Files.write(path, content.getBytes(charset));
+		    		return true;
+		    	}
+		    }
+		    //in.close();
+		    
+		    out.write("\n"+data.getFirstName().replace("+", " ")+","+data.getGrades());
+		    out.close();
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		return entryFound;
 	}
 }

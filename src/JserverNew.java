@@ -165,7 +165,7 @@ public class JserverNew {
 		if (method.equals("GET")) {
 			if (requested_resource.equals("/")) {
 
-				File file = new File(PATH + "\\index.html");
+				File file = new File(PATH + "/index.html");
 				int fileLength = (int) file.length();
 				response_header_writer(STATUS_OK, CONTENT_TYPE, fileLength, response);
 				response_file_writer(file, response_stream);
@@ -195,10 +195,13 @@ public class JserverNew {
 			
 			ProcessFormRequests formRequest = new ProcessFormRequests();
 			
-			File file  = formRequest.findResource(requested_resource, formData);
+			File file  = formRequest.findResource(requested_resource, formData);			
 			
+			if(file==null)
+			{
+				file = new File(PATH + "\\404.html");
+			}
 			System.out.println(file.getName());
-			
 			response_header_writer(STATUS_OK, CONTENT_TYPE, (int) file.length(), response);
 			response_file_writer(file, response_stream);
 		

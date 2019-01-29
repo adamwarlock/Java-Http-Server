@@ -1,6 +1,5 @@
 Joseph Dao
 Mike Melanson
-Tajinder Dhillon
 Zach Easterbrook
 Brandon Lucier
 Tomisin Falodun
@@ -12,4 +11,3 @@ Yicheng Lu
 Xiaohang Zhang
 Vivek Chopra
 Manpreet Singh
-adam warlock
